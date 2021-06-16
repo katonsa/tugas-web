@@ -1,0 +1,47 @@
+const router = require('express').Router()
+const authenticated = require('../authenticated');
+const db = require('../db-connection')
+
+router.use(authenticated)
+
+router.post('/todo', (req, res) => {
+  const { description } = req.body;
+  var sql ='INSERT INTO `todo` (description) VALUES (?)'
+  var params = [description];
+  db.run(sql, params, function (err, result) {
+    if (err){
+      res.status(500).json({'error': err.message});
+      return;
+    }
+    res.status(200).json({'error': false, id: this.lastID, message: 'Berhasil ditambahkan.'});
+  })
+})
+
+router.get('/todo', (_req, res) => {
+  const sql = 'SELECT * FROM `todo`'
+  var params = []
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      res.status(400).json({"error":err.message});
+      return;
+    }
+
+    res.json(rows)
+  });
+});
+
+router.delete('/todo/:id', (req, res) => {
+  db.run(
+    'DELETE FROM `todo` WHERE id = ?',
+    req.params.id,
+    function (err, result) {
+      if (err){
+        res.status(400).json({'error': res.message})
+        return;
+      }
+
+      res.json({'error': false, 'message': 'Record deleted.', changes: this.changes})
+  });
+});
+
+module.exports = router;
