@@ -6,8 +6,8 @@ router.use(authenticated)
 
 router.post('/todo', (req, res) => {
   const { description } = req.body;
-  var sql ='INSERT INTO `todo` (description) VALUES (?)'
-  var params = [description];
+  const sql ='INSERT INTO `todo` (description) VALUES (?)'
+  const params = [description];
   db.run(sql, params, function (err, result) {
     if (err){
       res.status(500).json({'error': err.message});
@@ -19,7 +19,7 @@ router.post('/todo', (req, res) => {
 
 router.get('/todo', (_req, res) => {
   const sql = 'SELECT * FROM `todo`'
-  var params = []
+  const params = []
   db.all(sql, params, (err, rows) => {
     if (err) {
       res.status(400).json({"error":err.message});
