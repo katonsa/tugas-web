@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const authenticated = require('../authenticated');
 const db = require('../db-connection')
-
+const wss = require('../wss')
 router.use(authenticated)
 
 router.post('/todo', (req, res) => {
@@ -14,6 +14,13 @@ router.post('/todo', (req, res) => {
       return;
     }
     res.status(200).json({'error': false, id: this.lastID, message: 'Berhasil ditambahkan.'});
+    wss.broadcastMessage({
+      action: 'ADD_ITEM',
+      data: {
+        id: this.lastID,
+        description
+      },
+    })
   })
 })
 
@@ -41,6 +48,12 @@ router.delete('/todo/:id', (req, res) => {
       }
 
       res.json({'error': false, 'message': 'Record deleted.', changes: this.changes})
+      wss.broadcastMessage({
+        action: 'REMOVE_ITEM',
+        data: {
+          id: req.params.id,
+        }
+      })
   });
 });
 
